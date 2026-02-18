@@ -60,6 +60,7 @@ export const useWorkspaceStore = create(
         },
 
         setActiveEnvironment: (envId) => {
+            console.log("uwu")
             const {workspace} = get();
             if (!workspace) return;
 

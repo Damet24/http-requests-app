@@ -11,11 +11,10 @@ export function EnvironmentSection() {
 
     const [open, setOpen] = useState(false);
 
-    // Construimos opciones dinámicamente
     const options = useMemo(() => {
         return [
             {
-                value: "",
+                value: "none",
                 label: "No Environment",
                 color: "text-zinc-400"
             },
