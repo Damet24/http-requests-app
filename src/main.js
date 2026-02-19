@@ -9,14 +9,17 @@ if (started) {
   app.quit();
 }
 
+console.log(path.join(process.cwd(), 'src/assets/icon.ico'))
+
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },
+    icon: path.join(process.cwd(), 'src/assets/icon.ico'),
   });
 
   // and load the index.html of the app.
