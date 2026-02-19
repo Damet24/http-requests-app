@@ -9,9 +9,159 @@ import {
     TabsContent,
     TabsList,
     TabsTrigger,
-    ScrollArea, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, H1,
+    ScrollArea, Button, Select, SelectTrigger, SelectValue, SelectContent, SelectItem, H1, Input, Field, FieldLabel,
+    InputGroupInput, InputGroupAddon, InputGroup,
 } from "./ui";
 import {Panel, Group} from "react-resizable-panels";
+import {EyeOffIcon, Eye} from "lucide-react";
+import {useState} from "react";
+
+
+function BasicAuthForm({request}) {
+    const setRequestAuthConfig = useWorkspaceStore(
+        s => s.setRequestAuthConfig
+    );
+    const [showPassword, setShowPassword] = useState(false);
+
+    const config = request.auth?.config || {};
+
+    return (
+        <div className="flex flex-col gap-3 mt-4 px-2">
+            <Field>
+                <FieldLabel htmlFor="username">Username</FieldLabel>
+                <InputGroup>
+                    <InputGroupInput
+                        id="username"
+                        type="text"
+                        placeholder="Username"
+                        value={config.username || ""}
+                        onChange={(e) =>
+                            setRequestAuthConfig(request.id, {
+                                username: e.target.value
+                            })
+                        }
+                    />
+                </InputGroup>
+            </Field>
+
+            <Field>
+                <FieldLabel htmlFor="password">Password</FieldLabel>
+                <InputGroup>
+                    <InputGroupInput
+                        id="password"
+                        type="password"
+                        placeholder="Password"
+                        value={config.password || ""}
+                        onChange={(e) =>
+                            setRequestAuthConfig(request.id, {
+                                password: e.target.value
+                            })
+                        }
+                    />
+                    <InputGroupAddon className="cursor-pointer" align="inline-end"
+                                     onClick={() => setShowPassword(value => !value)}>
+                        {showPassword ? <Eye/> : <EyeOffIcon/>}
+                    </InputGroupAddon>
+                </InputGroup>
+            </Field>
+        </div>
+    );
+}
+
+
+function BearerAuthForm({request}) {
+    const setRequestAuthConfig = useWorkspaceStore(
+        s => s.setRequestAuthConfig
+    );
+
+    const config = request.auth?.config || {};
+
+    return (
+        <div className="flex flex-col gap-3 mt-4">
+            <Field>
+                <FieldLabel htmlFor="token">Token</FieldLabel>
+                <InputGroup>
+                    <InputGroupInput
+                        id="token"
+                        type="text"
+                        placeholder="Token"
+                        value={config.token || ""}
+                        onChange={(e) =>
+                            setRequestAuthConfig(request.id, {
+                                token: e.target.value
+                            })
+                        }
+                    />
+                </InputGroup>
+            </Field>
+        </div>
+    );
+}
+
+
+function APIKeyAuthForm({request}) {
+    const setRequestAuthConfig = useWorkspaceStore(
+        s => s.setRequestAuthConfig
+    );
+
+    const config = request.auth?.config || {};
+
+    return (
+        <div className="flex flex-col gap-3 mt-4">
+            <Field>
+                <FieldLabel htmlFor="token">Key name</FieldLabel>
+                <InputGroup>
+                    <InputGroupInput
+                        type="text"
+                        placeholder="Key name"
+                        value={config.key || ""}
+                        onChange={(e) =>
+                            setRequestAuthConfig(request.id, {
+                                key: e.target.value
+                            })
+                        }
+                    />
+                </InputGroup>
+            </Field>
+
+            <Field>
+                <FieldLabel htmlFor="value">Key name</FieldLabel>
+                <InputGroup>
+                    <InputGroupInput
+                        id="value"
+                        type="text"
+                        placeholder="Value"
+                        value={config.value || ""}
+                        onChange={(e) =>
+                            setRequestAuthConfig(request.id, {
+                                value: e.target.value
+                            })
+                        }
+                    />
+                </InputGroup>
+            </Field>
+
+            <Select
+                value={config.in || "header"}
+                onValueChange={(value) =>
+                    setRequestAuthConfig(request.id, {
+                        in: value
+                    })
+                }
+            >
+                <SelectTrigger>
+                    <SelectValue/>
+                </SelectTrigger>
+
+                <SelectContent>
+                    <SelectItem value="header">Header</SelectItem>
+                    <SelectItem value="query">Query Param</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+    );
+}
+
 
 export function RequestArea() {
     const workspace = useWorkspaceStore((s) => s.workspace);
@@ -21,6 +171,7 @@ export function RequestArea() {
         s.responses[s.selectedRequestId]
     );
     const setRequestBodyType = useWorkspaceStore((s) => s.setRequestBodyType);
+    const setRequestAuthType = useWorkspaceStore((s) => s.setRequestAuthType);
 
     if (!selectedRequestId) {
         return (
@@ -108,7 +259,38 @@ export function RequestArea() {
                                 <TabsContent
                                     value="auth"
                                     className="flex-1 min-h-0 overflow-hidden">
-                                    <H1>Auth</H1>
+                                    <Select
+                                        value={request.auth?.type || "none"}
+                                        onValueChange={(value) =>
+                                            setRequestAuthType(request.id, value)
+                                        }
+                                    >
+                                        <SelectTrigger>
+                                            <SelectValue/>
+                                        </SelectTrigger>
+
+                                        <SelectContent>
+                                            <SelectItem value="none">None</SelectItem>
+                                            <SelectItem value="basic">Basic auth</SelectItem>
+                                            <SelectItem value="bearer">Bearer token</SelectItem>
+                                            <SelectItem value="api">API key</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+
+                                    <div className="py-2">
+                                        {request.auth?.type === "basic" && (
+                                            <BasicAuthForm request={request}/>
+                                        )}
+
+                                        {request.auth?.type === "bearer" && (
+                                            <BearerAuthForm request={request}/>
+                                        )}
+
+                                        {request.auth?.type === "api" && (
+                                            <APIKeyAuthForm request={request}/>
+                                        )}
+                                    </div>
+
                                 </TabsContent>
                             </Tabs>
                         </div>

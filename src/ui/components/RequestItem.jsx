@@ -17,7 +17,7 @@ const methodColors = {
     DELETE: "text-red-400"
 };
 
-export function RequestItem({ request }) {
+export function RequestItem({request}) {
     const selectedRequestId = useWorkspaceStore(s => s.selectedRequestId);
     const selectRequest = useWorkspaceStore(s => s.selectRequest);
     const updateRequest = useWorkspaceStore(s => s.updateRequest);
@@ -39,7 +39,7 @@ export function RequestItem({ request }) {
 
     const save = () => {
         if (draftName.trim() !== "") {
-            updateRequest(request.id, { name: draftName });
+            updateRequest(request.id, {name: draftName});
         }
         setIsEditing(false);
     };
@@ -61,10 +61,7 @@ export function RequestItem({ request }) {
                             : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                 >
-          <span className={`text-xs ${methodColors[request.method]}`}>
-            {request.method}
-          </span>
-
+                    <span className={`text-xs ${methodColors[request.method]}`}>{request.method}</span>
                     {isEditing ? (
                         <Input
                             ref={inputRef}
@@ -84,22 +81,8 @@ export function RequestItem({ request }) {
 
             <ContextMenuContent>
                 <ContextMenuGroup>
-                    <ContextMenuItem onSelect={() => setIsEditing(true)}>
-                        Rename
-                    </ContextMenuItem>
-
-                    <ContextMenuItem onSelect={() => duplicateRequest(request.id)}>
-                        Duplicate
-                    </ContextMenuItem>
-
-                    <ContextMenuItem
-                        onSelect={() =>
-                            updateRequest(request.id, { method: "GET" })
-                        }
-                    >
-                        Set GET
-                    </ContextMenuItem>
-
+                    <ContextMenuItem onSelect={() => setIsEditing(true)}>Rename</ContextMenuItem>
+                    <ContextMenuItem onSelect={() => duplicateRequest(request.id)}>Duplicate</ContextMenuItem>
                     <ContextMenuItem
                         onSelect={() => deleteRequest?.(request.id)}
                         className="text-destructive"

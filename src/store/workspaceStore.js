@@ -219,6 +219,64 @@ export const useWorkspaceStore = create(
             });
         },
 
+        setRequestAuthType: (requestId, type) => {
+            const { workspace } = get();
+            if (!workspace) return;
+
+            const defaultConfigs = {
+                none: {},
+                basic: { username: "", password: "" },
+                bearer: { token: "" },
+                api: { key: "", value: "", in: "header" } // header | query
+            };
+
+            const updatedRequests = workspace.requests.map(req => {
+                if (req.id !== requestId) return req;
+
+                return {
+                    ...req,
+                    auth: {
+                        type,
+                        config: defaultConfigs[type] || {}
+                    }
+                };
+            });
+
+            set({
+                workspace: {
+                    ...workspace,
+                    requests: updatedRequests
+                }
+            });
+        },
+
+        setRequestAuthConfig: (requestId, config) => {
+            const { workspace } = get();
+            if (!workspace) return;
+
+            const updatedRequests = workspace.requests.map(req => {
+                if (req.id !== requestId) return req;
+
+                return {
+                    ...req,
+                    auth: {
+                        ...req.auth,
+                        config: {
+                            ...req.auth?.config,
+                            ...config
+                        }
+                    }
+                };
+            });
+
+            set({
+                workspace: {
+                    ...workspace,
+                    requests: updatedRequests
+                }
+            });
+        },
+
         updateRequest: (requestId, updates) => {
             const {workspace} = get();
             if (!workspace) return;

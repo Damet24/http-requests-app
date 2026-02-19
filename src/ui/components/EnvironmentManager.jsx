@@ -13,6 +13,7 @@ import {
     Input,
     Label, ScrollArea,
 } from "./ui";
+import {Plus, Trash2} from "lucide-react";
 
 export function EnvironmentManager() {
     const workspace = useWorkspaceStore((s) => s.workspace);
@@ -39,7 +40,6 @@ export function EnvironmentManager() {
 
 
             <div className="flex gap-6 py-4">
-                {/* Environment List */}
                 <div className="w-48 space-y-2 border-r pr-4">
                     <ScrollArea className="h-100">
                         {workspace.environments.map((env) => (
@@ -58,11 +58,10 @@ export function EnvironmentManager() {
                         className="w-full"
                         onClick={() => createEnvironment("New Environment")}
                     >
-                        + New
+                        <Plus /> New
                     </Button>
                 </div>
 
-                {/* Variables Panel */}
                 {selectedEnv && (
                     <div className="flex-1 space-y-4">
                         <FieldGroup>
@@ -110,6 +109,7 @@ export function EnvironmentManager() {
                                 </FieldGroup>
                             ))}
 
+                            <div className="flex gap-2">
                             <Button
                                 variant="outline"
                                 onClick={() =>
@@ -121,15 +121,16 @@ export function EnvironmentManager() {
                                     })
                                 }
                             >
-                                + Add Variable
+                                <Plus /> Add Variable
                             </Button>
 
                             <Button
                                 variant="destructive"
                                 onClick={() => deleteEnvironment(selectedEnv.id)}
                             >
-                                Delete Environment
+                                <Trash2 /> Delete Environment
                             </Button>
+                            </div>
                         </div>
                     </div>
                 )}

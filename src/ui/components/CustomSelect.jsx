@@ -20,7 +20,7 @@ export function CustomSelect({
             value={value}
             onValueChange={onChange}
         >
-            <SelectTrigger className={`max-w-48 ${className ?? ""}`}>
+            <SelectTrigger className={`${className ?? ""}`}>
                 <SelectValue placeholder={placeholder}/>
             </SelectTrigger>
 

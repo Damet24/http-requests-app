@@ -8,9 +8,13 @@ export function createRequest(name, collectionId) {
         method: "GET",
         url: "",
         headers: [],
+        auth: {
+            type: "none",
+            config: {}
+        },
         body: {
             type: "none",
-            content: ""
+            config: null
         }
     };
 }
