@@ -9,7 +9,6 @@ export const useWorkspaceStore = create(
         workspace: null,
         isLoaded: false,
         selectedRequestId: null,
-        responses: {},
         isSending: false,
 
 
@@ -17,7 +16,10 @@ export const useWorkspaceStore = create(
             const data = await window.api.workspace.load();
 
             set({
-                workspace: data,
+                workspace: {
+                    ...data,
+                    responses: data.responses || {}
+                },
                 isLoaded: true
             });
         },
@@ -355,43 +357,43 @@ export const useWorkspaceStore = create(
         },
 
         sendRequest: async () => {
-            const {selectedRequestId} = get();
-            if (!selectedRequestId) return;
+            const { selectedRequestId, workspace } = get();
+            if (!selectedRequestId || !workspace) return;
 
-            set({isSending: true});
+            set({ isSending: true });
 
             try {
                 const res = await window.api.http.send(selectedRequestId);
 
-                if (res?.aborted) {
-                    set(state => ({
-                        responses: {
-                            ...state.responses,
-                            [selectedRequestId]: { aborted: true }
-                        },
-                        isSending: false
-                    }));
-
-                    return;
-                }
-
-                set(state => ({
+                const updatedWorkspace = {
+                    ...workspace,
                     responses: {
-                        ...state.responses,
-                        [selectedRequestId]: res
-                    },
+                        ...workspace.responses,
+                        [selectedRequestId]: res?.aborted
+                            ? { aborted: true }
+                            : res
+                    }
+                };
+
+                set({
+                    workspace: updatedWorkspace,
                     isSending: false
-                }));
+                });
 
             } catch (err) {
-                set(state => ({
-                    responses: {
-                        ...state.responses,
-                        [selectedRequestId]: { error: err.message }
-                    },
-                    isSending: false
-                }));
 
+                const updatedWorkspace = {
+                    ...workspace,
+                    responses: {
+                        ...workspace.responses,
+                        [selectedRequestId]: { error: err.message }
+                    }
+                };
+
+                set({
+                    workspace: updatedWorkspace,
+                    isSending: false
+                });
             }
         },
 
@@ -467,19 +469,21 @@ export const useWorkspaceStore = create(
         },
 
         cancelRequest: async () => {
-            const {selectedRequestId} = get();
-            if (!selectedRequestId) return;
+            const { selectedRequestId, workspace } = get();
+            if (!selectedRequestId || !workspace) return;
 
             await window.api.http.cancel(selectedRequestId);
 
-            set(state => ({
+            set({
                 isSending: false,
-                responses: {
-                    ...state.responses,
-                    [selectedRequestId]: { aborted: true }
+                workspace: {
+                    ...workspace,
+                    responses: {
+                        ...workspace.responses,
+                        [selectedRequestId]: { aborted: true }
+                    }
                 }
-            }));
-
+            });
         },
 
         createEnvironment: (name) => {
