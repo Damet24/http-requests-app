@@ -1,6 +1,6 @@
 import CodeMirror from "@uiw/react-codemirror";
 import {json} from "@codemirror/lang-json";
-import {oneDark} from "@codemirror/theme-one-dark";
+import {barf} from 'thememirror';
 import {EditorView} from "@codemirror/view";
 
 export function CodeEditor({value, onChange, language = "json", readOnly = false}) {
@@ -16,7 +16,7 @@ export function CodeEditor({value, onChange, language = "json", readOnly = false
         <div className="h-full w-full border border-zinc-800 rounded overflow-hidden">
             <CodeMirror
                 value={value || ""}
-                theme={oneDark}
+                theme={barf}
                 extensions={extensions}
                 editable={!readOnly}
                 onChange={onChange}

@@ -1,135 +1,146 @@
-import { useWorkspaceStore } from "../../store/workspaceStore";
-import { useState } from "react";
-import { Button } from "./ui/button";
+import {useWorkspaceStore} from "../../store/workspaceStore";
+import {useState} from "react";
+import {
+    Button,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    Field,
+    FieldGroup,
+    Input,
+    Label, ScrollArea,
+} from "./ui";
 
-export function EnvironmentManager({ onClose }) {
-    const workspace = useWorkspaceStore(s => s.workspace);
-    const createEnvironment = useWorkspaceStore(s => s.createEnvironment);
-    const updateEnvironment = useWorkspaceStore(s => s.updateEnvironment);
-    const deleteEnvironment = useWorkspaceStore(s => s.deleteEnvironment);
+export function EnvironmentManager() {
+    const workspace = useWorkspaceStore((s) => s.workspace);
+    const createEnvironment = useWorkspaceStore((s) => s.createEnvironment);
+    const updateEnvironment = useWorkspaceStore((s) => s.updateEnvironment);
+    const deleteEnvironment = useWorkspaceStore((s) => s.deleteEnvironment);
 
     const [selectedEnvId, setSelectedEnvId] = useState(
         workspace.activeEnvironmentId
     );
 
     const selectedEnv = workspace.environments.find(
-        e => e.id === selectedEnvId
+        (e) => e.id === selectedEnvId
     );
 
     return (
-        <div className="space-y-4">
+        <DialogContent className="sm:max-w-175">
+            <DialogHeader>
+                <DialogTitle>Manage Environments</DialogTitle>
+                <DialogDescription>
+                    Create, update or delete environments and variables.
+                </DialogDescription>
+            </DialogHeader>
 
-            <h2 className="text-lg font-semibold">
-                Manage Environments
-            </h2>
 
-            {/* Environment List */}
-            <div className="flex gap-4">
-                <div className="w-48 space-y-2">
-                    {workspace.environments.map(env => (
-                        <div
-                            key={env.id}
-                            onClick={() => setSelectedEnvId(env.id)}
-                            className={`cursor-pointer px-2 py-1 rounded ${
-                                env.id === selectedEnvId
-                                    ? "bg-zinc-800"
-                                    : "hover:bg-zinc-800 text-zinc-400"
-                            }`}
-                        >
-                            {env.name}
-                        </div>
-                    ))}
+            <div className="flex gap-6 py-4">
+                {/* Environment List */}
+                <div className="w-48 space-y-2 border-r pr-4">
+                    <ScrollArea className="h-100">
+                        {workspace.environments.map((env) => (
+                            <Button
+                                key={env.id}
+                                variant={selectedEnvId === env.id ? "secondary" : "ghost"}
+                                className="w-full justify-start"
+                                onClick={() => setSelectedEnvId(env.id)}
+                            >
+                                {env.name}
+                            </Button>
+                        ))}
+                    </ScrollArea>
 
                     <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() =>
-                            createEnvironment("New Environment")
-                        }
+                        className="w-full"
+                        onClick={() => createEnvironment("New Environment")}
                     >
                         + New
                     </Button>
                 </div>
 
-                {/* Variables */}
+                {/* Variables Panel */}
                 {selectedEnv && (
-                    <div className="flex-1 space-y-2">
-
-                        <input
-                            value={selectedEnv.name}
-                            onChange={(e) =>
-                                updateEnvironment(selectedEnv.id, {
-                                    name: e.target.value
-                                })
-                            }
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded px-2 py-1"
-                        />
-
-                        {selectedEnv.variables.map((v, index) => (
-                            <div key={index} className="flex gap-2">
-                                <input
-                                    value={v.key}
-                                    onChange={(e) => {
-                                        const updated = [...selectedEnv.variables];
-                                        updated[index].key = e.target.value;
+                    <div className="flex-1 space-y-4">
+                        <FieldGroup>
+                            <Field>
+                                <Label>Environment Name</Label>
+                                <Input
+                                    value={selectedEnv.name}
+                                    onChange={(e) =>
                                         updateEnvironment(selectedEnv.id, {
-                                            variables: updated
-                                        });
-                                    }}
-                                    placeholder="key"
-                                    className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1"
+                                            name: e.target.value,
+                                        })
+                                    }
                                 />
+                            </Field>
+                        </FieldGroup>
 
-                                <input
-                                    value={v.value}
-                                    onChange={(e) => {
-                                        const updated = [...selectedEnv.variables];
-                                        updated[index].value = e.target.value;
-                                        updateEnvironment(selectedEnv.id, {
-                                            variables: updated
-                                        });
-                                    }}
-                                    placeholder="value"
-                                    className="flex-1 bg-zinc-800 border border-zinc-700 rounded px-2 py-1"
-                                />
-                            </div>
-                        ))}
+                        <div className="space-y-3">
+                            {selectedEnv.variables.map((v, index) => (
+                                <FieldGroup key={index}>
+                                    <div className="flex gap-2">
+                                        <Input
+                                            placeholder="key"
+                                            value={v.key}
+                                            onChange={(e) => {
+                                                const updated = [...selectedEnv.variables];
+                                                updated[index].key = e.target.value;
+                                                updateEnvironment(selectedEnv.id, {
+                                                    variables: updated,
+                                                });
+                                            }}
+                                        />
 
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() =>
-                                updateEnvironment(selectedEnv.id, {
-                                    variables: [
-                                        ...selectedEnv.variables,
-                                        { key: "", value: "" }
-                                    ]
-                                })
-                            }
-                        >
-                            + Add Variable
-                        </Button>
+                                        <Input
+                                            placeholder="value"
+                                            value={v.value}
+                                            onChange={(e) => {
+                                                const updated = [...selectedEnv.variables];
+                                                updated[index].value = e.target.value;
+                                                updateEnvironment(selectedEnv.id, {
+                                                    variables: updated,
+                                                });
+                                            }}
+                                        />
+                                    </div>
+                                </FieldGroup>
+                            ))}
 
-                        <Button
-                            size="sm"
-                            variant="danger"
-                            onClick={() =>
-                                deleteEnvironment(selectedEnv.id)
-                            }
-                        >
-                            Delete Environment
-                        </Button>
+                            <Button
+                                variant="outline"
+                                onClick={() =>
+                                    updateEnvironment(selectedEnv.id, {
+                                        variables: [
+                                            ...selectedEnv.variables,
+                                            {key: "", value: ""},
+                                        ],
+                                    })
+                                }
+                            >
+                                + Add Variable
+                            </Button>
 
+                            <Button
+                                variant="destructive"
+                                onClick={() => deleteEnvironment(selectedEnv.id)}
+                            >
+                                Delete Environment
+                            </Button>
+                        </div>
                     </div>
                 )}
             </div>
 
-            <div className="flex justify-end">
-                <Button variant="primary" onClick={onClose}>
-                    Done
-                </Button>
-            </div>
+            <DialogFooter>
+                <DialogClose asChild>
+                    <Button>Done</Button>
+                </DialogClose>
 
-        </div>
+            </DialogFooter>
+        </DialogContent>
     );
 }

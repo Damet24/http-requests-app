@@ -1,21 +1,22 @@
-import {useWorkspaceStore} from "../../store/workspaceStore";
-import {useState} from "react";
-import {ResponseEditor} from "./ResponseEditor";
-import {HeadersViewer} from "./HeadersViewer";
-import {HeadersEditor} from "./HeadersEditor";
-import {CodeEditor} from "./CodeEditor";
-import {RequestConfigRow} from "./RequestConfigRow";
+import { useWorkspaceStore } from "../../store/workspaceStore";
+import { ResponseEditor } from "./ResponseEditor";
+import { HeadersViewer } from "./HeadersViewer";
+import { HeadersEditor } from "./HeadersEditor";
+import { CodeEditor } from "./CodeEditor";
+import { RequestConfigRow } from "./RequestConfigRow";
+import {
+    Button,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "./ui";
 
 export function RequestArea() {
-    const workspace = useWorkspaceStore(s => s.workspace);
-    const selectedRequestId = useWorkspaceStore(s => s.selectedRequestId);
-    const updateRequest = useWorkspaceStore(s => s.updateRequest);
-    const response = useWorkspaceStore(s => s.response);
-
-
-    const [responseTab, setResponseTab] = useState("body");
-    const [requestTab, setRequestTab] = useState("body");
-
+    const workspace = useWorkspaceStore((s) => s.workspace);
+    const selectedRequestId = useWorkspaceStore((s) => s.selectedRequestId);
+    const updateRequest = useWorkspaceStore((s) => s.updateRequest);
+    const response = useWorkspaceStore((s) => s.response);
 
     if (!selectedRequestId) {
         return (
@@ -26,7 +27,7 @@ export function RequestArea() {
     }
 
     const request = workspace.requests.find(
-        r => r.id === selectedRequestId
+        (r) => r.id === selectedRequestId
     );
 
     if (!request) return null;
@@ -38,55 +39,38 @@ export function RequestArea() {
             <h2 className="text-lg font-semibold">{request.name}</h2>
 
             {/* Request Config Row */}
-            <RequestConfigRow request={request}/>
+            <RequestConfigRow request={request} />
 
-            {/* Request Tabs */}
-            <div className="flex gap-4 border-b border-zinc-700 text-sm">
-                <button
-                    onClick={() => setRequestTab("body")}
-                    className={`pb-2 ${
-                        requestTab === "body"
-                            ? "text-blue-400 border-b-2 border-blue-400"
-                            : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                >
-                    Body
-                </button>
+            {/* REQUEST TABS */}
+            <Tabs defaultValue="body" className="flex flex-col flex-1 min-h-0">
 
-                <button
-                    onClick={() => setRequestTab("headers")}
-                    className={`pb-2 ${
-                        requestTab === "headers"
-                            ? "text-blue-400 border-b-2 border-blue-400"
-                            : "text-zinc-400 hover:text-zinc-200"
-                    }`}
-                >
-                    Headers
-                </button>
-            </div>
+                <TabsList className="border-b text-sm">
+                    <TabsTrigger value="body">Body</TabsTrigger>
+                    <TabsTrigger value="headers">Headers</TabsTrigger>
+                </TabsList>
 
-            {/* Request Content */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-                {requestTab === "body" && (
-                    <CodeEditor
-                        value={request.body?.content || ""}
-                        onChange={(val) =>
-                            updateRequest(request.id, {
-                                body: {...request.body, content: val}
-                            })
-                        }
-                        language="json"
-                    />
-                )}
+                <div className="flex-1 min-h-0 overflow-hidden">
+                    <TabsContent value="body" className="h-full">
+                        <CodeEditor
+                            value={request.body?.content || ""}
+                            onChange={(val) =>
+                                updateRequest(request.id, {
+                                    body: { ...request.body, content: val },
+                                })
+                            }
+                            language="json"
+                        />
+                    </TabsContent>
 
-                {requestTab === "headers" && (
-                    <HeadersEditor request={request}/>
-                )}
-            </div>
+                    <TabsContent value="headers" className="h-full">
+                        <HeadersEditor request={request} />
+                    </TabsContent>
+                </div>
+            </Tabs>
 
-            {/* Response Panel */}
+            {/* RESPONSE PANEL */}
             {response && (
-                <div className="bg-zinc-800 rounded text-sm flex flex-col flex-1 min-h-0 p-3 overflow-hidden">
+                <div className="rounded text-sm flex flex-col flex-1 min-h-0 p-3 overflow-hidden">
 
                     {response.aborted ? (
                         <div className="flex items-center gap-2 text-yellow-400">
@@ -98,59 +82,42 @@ export function RequestArea() {
                         <>
                             {/* Status Row */}
                             <div className="flex items-center gap-4">
-          <span className="text-green-400 font-medium">
-            {response.status} {response.statusText}
-          </span>
+                <span className="text-green-400 font-medium">
+                  {response.status} {response.statusText}
+                </span>
 
                                 <span className="text-zinc-400">
-            {response.duration} ms
-          </span>
+                  {response.duration} ms
+                </span>
                             </div>
 
-                            {/* Response Tabs */}
-                            <div className="flex gap-4 border-b border-zinc-700 text-sm mt-2">
-                                <button
-                                    onClick={() => setResponseTab("body")}
-                                    className={`pb-2 ${
-                                        responseTab === "body"
-                                            ? "text-blue-400 border-b-2 border-blue-400"
-                                            : "text-zinc-400 hover:text-zinc-200"
-                                    }`}
-                                >
-                                    Body
-                                </button>
+                            {/* RESPONSE TABS */}
+                            <Tabs
+                                defaultValue="body"
+                                className="flex flex-col flex-1 min-h-0 mt-2"
+                            >
+                                <TabsList className="border-b border-zinc-700 text-sm">
+                                    <TabsTrigger value="body">Body</TabsTrigger>
+                                    <TabsTrigger value="headers">Headers</TabsTrigger>
+                                </TabsList>
 
-                                <button
-                                    onClick={() => setResponseTab("headers")}
-                                    className={`pb-2 ${
-                                        responseTab === "headers"
-                                            ? "text-blue-400 border-b-2 border-blue-400"
-                                            : "text-zinc-400 hover:text-zinc-200"
-                                    }`}
-                                >
-                                    Headers
-                                </button>
-                            </div>
+                                <div className="flex-1 min-h-0 overflow-hidden mt-2">
+                                    <TabsContent value="body" className="h-full">
+                                        <ResponseEditor
+                                            body={response.body}
+                                            headers={response.headers}
+                                        />
+                                    </TabsContent>
 
-                            {/* Response Content */}
-                            <div className="flex-1 min-h-0 overflow-hidden mt-2">
-                                {responseTab === "body" && (
-                                    <ResponseEditor
-                                        body={response.body}
-                                        headers={response.headers}
-                                    />
-                                )}
-
-                                {responseTab === "headers" && (
-                                    <HeadersViewer headers={response.headers}/>
-                                )}
-                            </div>
+                                    <TabsContent value="headers" className="h-full">
+                                        <HeadersViewer headers={response.headers} />
+                                    </TabsContent>
+                                </div>
+                            </Tabs>
                         </>
                     )}
                 </div>
             )}
-
-
         </div>
     );
 }

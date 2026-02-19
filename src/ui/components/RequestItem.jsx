@@ -1,6 +1,7 @@
 import { useWorkspaceStore } from "../../store/workspaceStore";
 import { useState, useRef, useEffect } from "react";
 import { useContextMenu } from "../context/ContextMenuContext";
+import {Input} from "./ui";
 
 const methodColors = {
     GET: "text-green-400",
@@ -75,7 +76,7 @@ export function RequestItem({ request }) {
       </span>
 
             {isEditing ? (
-                <input
+                <Input
                     ref={inputRef}
                     value={draftName}
                     onChange={(e) => setDraftName(e.target.value)}
@@ -84,7 +85,6 @@ export function RequestItem({ request }) {
                         if (e.key === "Escape") cancel();
                     }}
                     onBlur={save}
-                    className="flex-1 bg-zinc-900 border border-zinc-700 rounded px-2 py-0.5 text-sm"
                 />
             ) : (
                 <span className="truncate">

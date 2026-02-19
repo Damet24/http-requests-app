@@ -1,9 +1,9 @@
-import { useWorkspaceStore } from "../../store/workspaceStore";
-import { RequestItem } from "./RequestItem";
-import { Button } from "./ui/button";
-import { useState, useRef, useEffect } from "react";
+import {useWorkspaceStore} from "../../store/workspaceStore";
+import {RequestItem} from "./RequestItem";
+import {Button, Input} from "./ui";
+import {useState, useRef, useEffect} from "react";
 
-export function CollectionItem({ collection }) {
+export function CollectionItem({collection}) {
     const workspace = useWorkspaceStore(s => s.workspace);
     const createRequest = useWorkspaceStore(s => s.createRequest);
     const updateCollection = useWorkspaceStore(s => s.updateCollection);
@@ -23,7 +23,7 @@ export function CollectionItem({ collection }) {
 
     const save = () => {
         if (draftName.trim() !== "") {
-            updateCollection(collection.id, { name: draftName });
+            updateCollection(collection.id, {name: draftName});
         }
         setIsEditing(false);
     };
@@ -53,7 +53,7 @@ export function CollectionItem({ collection }) {
           </span>
 
                     {isEditing ? (
-                        <input
+                        <Input
                             ref={inputRef}
                             value={draftName}
                             onChange={(e) => setDraftName(e.target.value)}
@@ -62,7 +62,6 @@ export function CollectionItem({ collection }) {
                                 if (e.key === "Escape") cancel();
                             }}
                             onBlur={save}
-                            className="bg-zinc-900 border border-zinc-700 rounded px-2 py-0.5 text-sm font-semibold"
                         />
                     ) : (
                         <span
@@ -75,7 +74,6 @@ export function CollectionItem({ collection }) {
                 </div>
 
                 <Button
-                    size="sm"
                     variant="ghost"
                     onClick={() =>
                         createRequest(collection.id, "New Request")
@@ -89,7 +87,7 @@ export function CollectionItem({ collection }) {
             {/* Requests with animation */}
             <div
                 className={`overflow-hidden transition-all duration-300 ${
-                    collapsed ? "max-h-0 opacity-0" : "max-h-[500px] opacity-100"
+                    collapsed ? "max-h-0 opacity-0" : "max-h-125 opacity-100"
                 }`}
             >
                 <div className="pl-5 space-y-1 mt-1">
@@ -108,7 +106,6 @@ export function CollectionItem({ collection }) {
                     })}
                 </div>
             </div>
-
         </div>
     );
 }

@@ -2,6 +2,7 @@ import {useWorkspaceStore} from "../../store/workspaceStore";
 import {MethodSelect} from "./MethodSelect";
 import { Button } from "./ui/button";
 import {UrlEditor} from "./UrlEditor";
+import {Spinner} from "./ui";
 
 export function RequestConfigRow({request}) {
 
@@ -40,17 +41,15 @@ export function RequestConfigRow({request}) {
 
         {isSending ? (
             <Button
-                variant="danger"
                 onClick={cancelRequest}
             >
+                <Spinner size={20} />
                 Cancel
             </Button>
 
         ) : (
             <Button
-                variant="primary"
                 onClick={sendRequest}
-                loading={isSending}
             >
                 Send
             </Button>

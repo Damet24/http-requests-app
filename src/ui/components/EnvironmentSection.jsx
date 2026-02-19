@@ -1,15 +1,13 @@
-import { useState, useMemo } from "react";
-import { Modal } from "./Modal";
-import { EnvironmentManager } from "./EnvironmentManager";
-import { Button } from "./ui/button";
-import { useWorkspaceStore } from "../../store/workspaceStore";
-import { CustomSelect } from "./CustomSelect";
+import {useState, useMemo} from "react";
+import {Modal} from "./Modal";
+import {EnvironmentManager} from "./EnvironmentManager";
+import {Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger} from "./ui";
+import {useWorkspaceStore} from "../../store/workspaceStore";
+import {CustomSelect} from "./CustomSelect";
 
 export function EnvironmentSection() {
     const workspace = useWorkspaceStore(s => s.workspace);
     const setActiveEnvironment = useWorkspaceStore(s => s.setActiveEnvironment);
-
-    const [open, setOpen] = useState(false);
 
     const options = useMemo(() => {
         return [
@@ -36,20 +34,15 @@ export function EnvironmentSection() {
                 value={workspace.activeEnvironmentId || ""}
                 options={options}
                 onChange={setActiveEnvironment}
-                className="flex-1"
+                className="flex-1 w-full"
             />
 
-            <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => setOpen(true)}
-            >
-                Manage
-            </Button>
-
-            <Modal open={open} onClose={() => setOpen(false)}>
-                <EnvironmentManager onClose={() => setOpen(false)} />
-            </Modal>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button variant="ghost">Manage</Button>
+                </DialogTrigger>
+                <EnvironmentManager/>
+            </Dialog>
 
         </div>
     );

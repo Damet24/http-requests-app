@@ -1,7 +1,7 @@
 import CodeMirror from "@uiw/react-codemirror";
 import {EditorView, Decoration, ViewPlugin} from "@codemirror/view";
 import {RangeSetBuilder} from "@codemirror/state";
-import {oneDark} from "@codemirror/theme-one-dark";
+import {barf} from 'thememirror';
 import {autocompletion} from "@codemirror/autocomplete";
 
 
@@ -76,8 +76,7 @@ export function UrlEditor({value, onChange, variables = []}) {
         <div className="flex-1 border border-zinc-700 rounded bg-zinc-800 overflow-hidden">
             <CodeMirror
                 value={value || ""}
-                height="38px"
-                theme={oneDark}
+                theme={barf}
                 extensions={[
                     EditorView.lineWrapping,
                     variablePlugin,

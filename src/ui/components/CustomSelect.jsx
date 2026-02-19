@@ -17,6 +17,7 @@ export function CustomSelect({
                              }) {
     return (
         <Select
+            className="w-full"
             value={value}
             onValueChange={onChange}
         >
