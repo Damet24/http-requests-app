@@ -1,4 +1,4 @@
-# Request App
+# Reqly Desktop
 
 ![Reqly Desktop](.github/screenshot.png)
 
