@@ -24,7 +24,7 @@ function resolveVariables(input, variables) {
 
     return input.replace(/{{(.*?)}}/g, (_, key) => {
         const found = variables.find(
-            v => v.key === key.trim() && v.enabled
+            v => v.key === key.trim()
         );
         return found ? found.value : "";
     });
@@ -108,9 +108,14 @@ export function registerIpcHandlers() {
             env => env.id === workspace.activeEnvironmentId
         );
 
+        console.log(activeEnv);
+        console.log(request);
+
         const variables = activeEnv ? activeEnv.variables : [];
 
         const resolvedUrl = resolveVariables(request.url, variables);
+
+        console.log(resolvedUrl);
 
         const resolvedHeaders = {};
         request.headers
@@ -130,6 +135,12 @@ export function registerIpcHandlers() {
         const start = Date.now();
 
         try {
+            console.log(resolvedUrl, {
+                method: request.method,
+                headers: resolvedHeaders,
+                body: request.method !== "GET" ? resolvedBody : undefined,
+                signal: controller.signal
+            })
             const response = await fetch(resolvedUrl, {
                 method: request.method,
                 headers: resolvedHeaders,

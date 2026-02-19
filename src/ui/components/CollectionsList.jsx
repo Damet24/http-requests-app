@@ -5,7 +5,7 @@ export function CollectionsList() {
     const workspace = useWorkspaceStore(s => s.workspace);
 
     return (
-        <div className="space-y-4">
+        <div>
             {workspace.collections.map(collection => (
                 <CollectionItem
                     key={collection.id}

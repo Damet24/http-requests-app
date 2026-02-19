@@ -1,12 +1,20 @@
 import {useWorkspaceStore} from "../../store/workspaceStore";
 import {RequestItem} from "./RequestItem";
-import {Button, Input} from "./ui";
+import {Button, Input, ContextMenu,
+    ContextMenuTrigger,
+    ContextMenuContent,
+    ContextMenuGroup,
+    ContextMenuItem,
+    ContextMenuSeparator} from "./ui";
 import {useState, useRef, useEffect} from "react";
+import {Plus, ChevronDown} from "lucide-react";
 
-export function CollectionItem({collection}) {
+export function CollectionItem({ collection }) {
     const workspace = useWorkspaceStore(s => s.workspace);
     const createRequest = useWorkspaceStore(s => s.createRequest);
     const updateCollection = useWorkspaceStore(s => s.updateCollection);
+    const deleteCollection = useWorkspaceStore(s => s.deleteCollection);
+    const duplicateCollection = useWorkspaceStore(s => s.duplicateCollection);
 
     const [isEditing, setIsEditing] = useState(false);
     const [draftName, setDraftName] = useState(collection.name ?? "");
@@ -23,7 +31,7 @@ export function CollectionItem({collection}) {
 
     const save = () => {
         if (draftName.trim() !== "") {
-            updateCollection(collection.id, {name: draftName});
+            updateCollection(collection.id, { name: draftName });
         }
         setIsEditing(false);
     };
@@ -34,78 +42,115 @@ export function CollectionItem({collection}) {
     };
 
     return (
-        <div className="space-y-1">
+        <ContextMenu>
+            <ContextMenuTrigger asChild>
+                <div>
+                    {/* Header */}
+                    <div className="flex justify-between items-center group">
+                        <div
+                            className="flex items-center gap-1 cursor-pointer flex-1"
+                            onClick={() => !isEditing && setCollapsed(prev => !prev)}
+                        >
+              <span
+                  className={`text-xs transition-transform duration-200 ${
+                      collapsed ? "-rotate-90" : "rotate-0"
+                  }`}
+              >
+                <ChevronDown size={14} />
+              </span>
 
-            {/* Header */}
-            <div className="flex justify-between items-center group">
+                            {isEditing ? (
+                                <Input
+                                    ref={inputRef}
+                                    value={draftName}
+                                    onChange={(e) => setDraftName(e.target.value)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") save();
+                                        if (e.key === "Escape") cancel();
+                                    }}
+                                    onBlur={save}
+                                />
+                            ) : (
+                                <span
+                                    onDoubleClick={() => setIsEditing(true)}
+                                    className="font-semibold text-sm"
+                                >
+                  {collection.name}
+                </span>
+                            )}
+                        </div>
 
-                <div
-                    className="flex items-center gap-2 cursor-pointer flex-1"
-                    onClick={() => !isEditing && setCollapsed(prev => !prev)}
-                >
-                    {/* Arrow */}
-                    <span
-                        className={`text-xs transition-transform duration-200 ${
-                            collapsed ? "-rotate-90" : "rotate-0"
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                                createRequest(collection.id, "New Request")
+                            }
+                        >
+                            <Plus size={16} />
+                        </Button>
+                    </div>
+
+                    {/* Requests */}
+                    <div
+                        className={`overflow-hidden transition-all duration-300 ${
+                            collapsed ? "max-h-0 opacity-0" : "max-h-125 opacity-100"
                         }`}
                     >
-            ▼
-          </span>
+                        <div className="pl-5 space-y-1">
+                            {collection.requestIds.map(reqId => {
+                                const request = workspace.requests.find(
+                                    r => r.id === reqId
+                                );
+                                if (!request) return null;
 
-                    {isEditing ? (
-                        <Input
-                            ref={inputRef}
-                            value={draftName}
-                            onChange={(e) => setDraftName(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === "Enter") save();
-                                if (e.key === "Escape") cancel();
-                            }}
-                            onBlur={save}
-                        />
-                    ) : (
-                        <span
-                            onDoubleClick={() => setIsEditing(true)}
-                            className="font-semibold text-sm"
-                        >
-              {collection.name}
-            </span>
-                    )}
+                                return (
+                                    <RequestItem
+                                        key={request.id}
+                                        request={request}
+                                    />
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
+            </ContextMenuTrigger>
 
-                <Button
-                    variant="ghost"
-                    onClick={() =>
-                        createRequest(collection.id, "New Request")
-                    }
-                >
-                    + Req
-                </Button>
+            {/* Context Menu */}
+            <ContextMenuContent>
+                <ContextMenuGroup>
+                    <ContextMenuItem onSelect={() => setIsEditing(true)}>
+                        Rename
+                    </ContextMenuItem>
 
-            </div>
+                    <ContextMenuItem
+                        onSelect={() =>
+                            createRequest(collection.id, "New Request")
+                        }
+                    >
+                        Add Request
+                    </ContextMenuItem>
 
-            {/* Requests with animation */}
-            <div
-                className={`overflow-hidden transition-all duration-300 ${
-                    collapsed ? "max-h-0 opacity-0" : "max-h-125 opacity-100"
-                }`}
-            >
-                <div className="pl-5 space-y-1 mt-1">
-                    {collection.requestIds.map(reqId => {
-                        const request = workspace.requests.find(
-                            r => r.id === reqId
-                        );
-                        if (!request) return null;
+                    <ContextMenuItem
+                        onSelect={() =>
+                            duplicateCollection(collection.id)
+                        }
+                    >
+                        Duplicate
+                    </ContextMenuItem>
 
-                        return (
-                            <RequestItem
-                                key={request.id}
-                                request={request}
-                            />
-                        );
-                    })}
-                </div>
-            </div>
-        </div>
+                    <ContextMenuSeparator />
+
+                    <ContextMenuItem
+                        onSelect={() =>
+                            deleteCollection(collection.id)
+                        }
+                        className="text-destructive"
+                    >
+                        Delete
+                    </ContextMenuItem>
+                </ContextMenuGroup>
+            </ContextMenuContent>
+        </ContextMenu>
     );
 }

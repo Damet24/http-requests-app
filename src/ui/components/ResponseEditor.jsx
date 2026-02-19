@@ -1,7 +1,7 @@
 import CodeMirror from "@uiw/react-codemirror";
 import { json } from "@codemirror/lang-json";
 import { EditorView } from "@codemirror/view";
-import {barf} from 'thememirror';
+import {AppThemeEditor} from "./EdetorTheme";
 
 export function ResponseEditor({ body, headers }) {
     const isJson =
@@ -19,10 +19,10 @@ export function ResponseEditor({ body, headers }) {
     }
 
     return (
-        <div className="flex-1 min-h-0 w-full border border-zinc-800 rounded">
+        <div className="flex-1 min-h-0 w-full rounded-lg border-zinc-800 border">
             <CodeMirror
                 value={formattedBody || ""}
-                theme={barf}
+                theme={AppThemeEditor}
                 extensions={[
                     ...(isJson ? [json()] : []),
                     EditorView.lineWrapping

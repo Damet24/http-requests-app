@@ -1,8 +1,9 @@
 import CodeMirror from "@uiw/react-codemirror";
 import {EditorView, Decoration, ViewPlugin} from "@codemirror/view";
 import {RangeSetBuilder} from "@codemirror/state";
-import {barf} from 'thememirror';
 import {autocompletion} from "@codemirror/autocomplete";
+import {cn} from "../../lib/utils";
+import {AppThemeEditor} from "./EdetorTheme";
 
 
 function createVariableCompletion(variables) {
@@ -26,8 +27,6 @@ function createVariableCompletion(variables) {
     };
 }
 
-
-// Highlight {{variable}}
 const variablePlugin = ViewPlugin.fromClass(
     class {
         decorations;
@@ -44,7 +43,7 @@ const variablePlugin = ViewPlugin.fromClass(
 
         buildDecorations(view) {
             const builder = new RangeSetBuilder();
-            const regex = /\{\{(.*?)\}\}/g;
+            const regex = /\{\{(.*?)}}/g;
 
             for (let {from, to} of view.visibleRanges) {
                 const text = view.state.doc.sliceString(from, to);
@@ -71,32 +70,32 @@ const variablePlugin = ViewPlugin.fromClass(
     }
 );
 
-export function UrlEditor({value, onChange, variables = []}) {
+export function UrlEditor({ value, onChange, variables = [] }) {
     return (
-        <div className="flex-1 border border-zinc-700 rounded bg-zinc-800 overflow-hidden">
+        <div
+            data-slot="input"
+            className={cn(
+                "dark:bg-input/30 border-input focus-within:border-ring focus-within:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 disabled:bg-input/50 dark:disabled:bg-input/80 h-8 rounded-lg border bg-transparent text-base transition-colors focus-within:ring-3 md:text-sm w-full min-w-0 outline-none overflow-hidden"
+            )}
+        >
             <CodeMirror
                 value={value || ""}
-                theme={barf}
+                theme={AppThemeEditor}
                 extensions={[
                     EditorView.lineWrapping,
                     variablePlugin,
                     autocompletion({
-                        override: [createVariableCompletion(variables)]
+                        override: [createVariableCompletion(variables)],
                     }),
-                    EditorView.theme({
-                        "&": {fontSize: "14px"},
-                        ".cm-content": {padding: "6px 8px"},
-                        ".cm-scroller": {overflow: "hidden"}
-                    })
                 ]}
-
                 basicSetup={{
                     lineNumbers: false,
                     foldGutter: false,
-                    highlightActiveLine: false
+                    highlightActiveLine: false,
                 }}
                 onChange={onChange}
             />
         </div>
     );
 }
+

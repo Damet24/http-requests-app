@@ -1,7 +1,7 @@
 import CodeMirror from "@uiw/react-codemirror";
 import {json} from "@codemirror/lang-json";
-import {barf} from 'thememirror';
 import {EditorView} from "@codemirror/view";
+import {AppThemeEditor} from "./EdetorTheme";
 
 export function CodeEditor({value, onChange, language = "json", readOnly = false}) {
     const extensions = [];
@@ -13,10 +13,10 @@ export function CodeEditor({value, onChange, language = "json", readOnly = false
     extensions.push(EditorView.lineWrapping);
 
     return (
-        <div className="h-full w-full border border-zinc-800 rounded overflow-hidden">
+        <div className="h-full w-full border border-zinc-800 rounded-lg overflow-hidden">
             <CodeMirror
                 value={value || ""}
-                theme={barf}
+                theme={AppThemeEditor}
                 extensions={extensions}
                 editable={!readOnly}
                 onChange={onChange}

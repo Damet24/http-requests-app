@@ -1,7 +1,14 @@
-import { useWorkspaceStore } from "../../store/workspaceStore";
-import { useState, useRef, useEffect } from "react";
-import { useContextMenu } from "../context/ContextMenuContext";
-import {Input} from "./ui";
+import {useWorkspaceStore} from "../../store/workspaceStore";
+import {useState, useRef, useEffect} from "react";
+import {
+    Input,
+    ContextMenu,
+    ContextMenuTrigger,
+    ContextMenuContent,
+    ContextMenuGroup,
+    ContextMenuItem,
+    ContextMenuSeparator,
+} from "./ui";
 
 const methodColors = {
     GET: "text-green-400",
@@ -14,16 +21,15 @@ export function RequestItem({ request }) {
     const selectedRequestId = useWorkspaceStore(s => s.selectedRequestId);
     const selectRequest = useWorkspaceStore(s => s.selectRequest);
     const updateRequest = useWorkspaceStore(s => s.updateRequest);
-    const { showMenu } = useContextMenu();
+    const deleteRequest = useWorkspaceStore(s => s.deleteRequest);
+    const duplicateRequest = useWorkspaceStore(s => s.duplicateRequest);
 
     const [isEditing, setIsEditing] = useState(false);
     const [draftName, setDraftName] = useState(request.name ?? "");
 
     const inputRef = useRef(null);
-
     const selected = selectedRequestId === request.id;
 
-    // Focus input when editing starts
     useEffect(() => {
         if (isEditing && inputRef.current) {
             inputRef.current.focus();
@@ -44,53 +50,64 @@ export function RequestItem({ request }) {
     };
 
     return (
-        <div
-            onContextMenu={(e) => {
-                e.preventDefault();
-                showMenu({
-                    x: e.clientX,
-                    y: e.clientY,
-                    items: [
-                        {
-                            label: "Rename",
-                            onClick: () => setIsEditing(true)
-                        },
-                        {
-                            label: "Delete",
-                            onClick: () => console.log("delete request")
-                        }
-                    ]
-                });
-            }}
-            onClick={() => !isEditing && selectRequest(request.id)}
-            onDoubleClick={() => setIsEditing(true)}
-            className={`flex items-center gap-2 text-sm cursor-pointer px-2 py-1 rounded transition-colors
-        ${
-                selected
-                    ? "bg-zinc-800 text-white"
-                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-            }`}
-        >
-      <span className={`text-xs ${methodColors[request.method]}`}>
-        {request.method}
-      </span>
+        <ContextMenu>
+            <ContextMenuTrigger asChild>
+                <div
+                    onClick={() => !isEditing && selectRequest(request.id)}
+                    onDoubleClick={() => setIsEditing(true)}
+                    className={`flex items-center gap-2 text-sm cursor-pointer px-2 py-1 rounded transition-colors ${
+                        selected
+                            ? "bg-muted text-foreground"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                >
+          <span className={`text-xs ${methodColors[request.method]}`}>
+            {request.method}
+          </span>
 
-            {isEditing ? (
-                <Input
-                    ref={inputRef}
-                    value={draftName}
-                    onChange={(e) => setDraftName(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") save();
-                        if (e.key === "Escape") cancel();
-                    }}
-                    onBlur={save}
-                />
-            ) : (
-                <span className="truncate">
-          {request.name}
-        </span>
-            )}
-        </div>
+                    {isEditing ? (
+                        <Input
+                            ref={inputRef}
+                            value={draftName}
+                            onChange={(e) => setDraftName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") save();
+                                if (e.key === "Escape") cancel();
+                            }}
+                            onBlur={save}
+                        />
+                    ) : (
+                        <span className="truncate">{request.name}</span>
+                    )}
+                </div>
+            </ContextMenuTrigger>
+
+            <ContextMenuContent>
+                <ContextMenuGroup>
+                    <ContextMenuItem onSelect={() => setIsEditing(true)}>
+                        Rename
+                    </ContextMenuItem>
+
+                    <ContextMenuItem onSelect={() => duplicateRequest(request.id)}>
+                        Duplicate
+                    </ContextMenuItem>
+
+                    <ContextMenuItem
+                        onSelect={() =>
+                            updateRequest(request.id, { method: "GET" })
+                        }
+                    >
+                        Set GET
+                    </ContextMenuItem>
+
+                    <ContextMenuItem
+                        onSelect={() => deleteRequest?.(request.id)}
+                        className="text-destructive"
+                    >
+                        Delete
+                    </ContextMenuItem>
+                </ContextMenuGroup>
+            </ContextMenuContent>
+        </ContextMenu>
     );
 }

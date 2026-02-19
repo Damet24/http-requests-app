@@ -1,6 +1,8 @@
-import { useWorkspaceStore } from "../../store/workspaceStore";
+import {useWorkspaceStore} from "../../store/workspaceStore";
+import {Button, Input, Switch} from "./ui";
+import {Trash2, Plus} from 'lucide-react'
 
-export function HeadersEditor({ request }) {
+export function HeadersEditor({request}) {
     const addHeader = useWorkspaceStore(s => s.addHeader);
     const updateHeader = useWorkspaceStore(s => s.updateHeader);
     const removeHeader = useWorkspaceStore(s => s.removeHeader);
@@ -19,57 +21,55 @@ export function HeadersEditor({ request }) {
                     key={header.id}
                     className="grid grid-cols-12 gap-2 items-center"
                 >
-                    <input
+                    <Input
                         value={header.key}
                         onChange={(e) =>
                             updateHeader(request.id, header.id, {
                                 key: e.target.value
                             })
                         }
-                        className="col-span-5 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm"
                         placeholder="Header name"
+                        className="col-span-5"
                     />
 
-                    <input
+                    <Input
                         value={header.value}
                         onChange={(e) =>
                             updateHeader(request.id, header.id, {
                                 value: e.target.value
                             })
                         }
-                        className="col-span-5 bg-zinc-800 border border-zinc-700 rounded px-2 py-1 text-sm"
+                        className="col-span-6"
                         placeholder="Header value"
                     />
 
-                    <div className="col-span-2 flex gap-2 items-center">
-                        <input
-                            type="checkbox"
+                    <div className="col-span-1 flex gap-2 items-center">
+                        <Switch
                             checked={header.enabled}
-                            onChange={(e) =>
+                            onCheckedChange={(checked) =>
                                 updateHeader(request.id, header.id, {
-                                    enabled: e.target.checked
+                                    enabled: checked,
                                 })
                             }
                         />
-
-                        <button
+                        <Button
+                            variant="ghost"
                             onClick={() =>
                                 removeHeader(request.id, header.id)
                             }
-                            className="text-red-400 text-xs"
                         >
-                            ✕
-                        </button>
+                            <Trash2/>
+                        </Button>
                     </div>
                 </div>
             ))}
 
-            <button
+            <Button
+                variant="outline"
                 onClick={() => addHeader(request.id)}
-                className="text-blue-400 text-sm mt-2 self-start"
             >
-                + Add Header
-            </button>
+                <Plus/> Add Header
+            </Button>
         </div>
     );
 }

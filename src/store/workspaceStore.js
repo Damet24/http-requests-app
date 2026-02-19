@@ -12,6 +12,7 @@ export const useWorkspaceStore = create(
         response: null,
         isSending: false,
 
+
         loadWorkspace: async () => {
             const data = await window.api.workspace.load();
 
@@ -44,7 +45,7 @@ export const useWorkspaceStore = create(
         },
 
         updateCollection: (collectionId, updates) => {
-            const { workspace } = get();
+            const {workspace} = get();
             if (!workspace) return;
 
             set({
@@ -52,15 +53,84 @@ export const useWorkspaceStore = create(
                     ...workspace,
                     collections: workspace.collections.map(c =>
                         c.id === collectionId
-                            ? { ...c, ...updates }
+                            ? {...c, ...updates}
                             : c
                     )
                 }
             });
         },
 
+        deleteCollection: (collectionId) => {
+            const {workspace, selectedRequestId} = get();
+            if (!workspace) return;
+
+            const collection = workspace.collections.find(c => c.id === collectionId);
+            if (!collection) return;
+
+            const requestIdsToDelete = collection.requestIds;
+
+            const updatedRequests = workspace.requests.filter(
+                r => !requestIdsToDelete.includes(r.id)
+            );
+
+            const updatedCollections = workspace.collections.filter(
+                c => c.id !== collectionId
+            );
+
+            set({
+                workspace: {
+                    ...workspace,
+                    collections: updatedCollections,
+                    requests: updatedRequests,
+                },
+                selectedRequestId: requestIdsToDelete.includes(selectedRequestId)
+                    ? null
+                    : selectedRequestId,
+            });
+        },
+
+        duplicateCollection: (collectionId) => {
+            const {workspace} = get();
+            if (!workspace) return;
+
+            const original = workspace.collections.find(c => c.id === collectionId);
+            if (!original) return;
+
+            const newCollectionId = crypto.randomUUID();
+
+            const originalRequests = workspace.requests.filter(
+                r => r.collectionId === collectionId
+            );
+
+            const duplicatedRequests = originalRequests.map(req => {
+                const newRequestId = crypto.randomUUID();
+
+                return {
+                    ...req,
+                    id: newRequestId,
+                    collectionId: newCollectionId,
+                    name: req.name + " Copy",
+                };
+            });
+
+            const newCollection = {
+                ...original,
+                id: newCollectionId,
+                name: original.name + " Copy",
+                requestIds: duplicatedRequests.map(r => r.id),
+            };
+
+            set({
+                workspace: {
+                    ...workspace,
+                    collections: [...workspace.collections, newCollection],
+                    requests: [...workspace.requests, ...duplicatedRequests],
+                },
+            });
+        },
+
+
         setActiveEnvironment: (envId) => {
-            console.log("uwu")
             const {workspace} = get();
             if (!workspace) return;
 
@@ -83,7 +153,7 @@ export const useWorkspaceStore = create(
                 method: "GET",
                 url: "",
                 headers: [],
-                body: {type: "none", content: ""}
+                body: {type: "json", content: ""}
             };
 
             const updatedCollections = workspace.collections.map(c =>
@@ -100,6 +170,56 @@ export const useWorkspaceStore = create(
                 }
             });
         },
+
+        setRequestBodyType: (requestId, type) => {
+            const { workspace } = get();
+            if (!workspace) return;
+
+            const contentTypeMap = {
+                json: "application/json",
+                text: "text/plain",
+                form: "multipart/form-data",
+                urlencoded: "application/x-www-form-urlencoded",
+            };
+
+            const updatedRequests = workspace.requests.map(req => {
+                if (req.id !== requestId) return req;
+
+                let updatedHeaders = [...req.headers];
+
+                // Remove existing content-type
+                updatedHeaders = updatedHeaders.filter(
+                    h => h.key.toLowerCase() !== "content-type"
+                );
+
+                // Add new content-type if needed
+                if (contentTypeMap[type]) {
+                    updatedHeaders.push({
+                        id: crypto.randomUUID(),
+                        key: "Content-Type",
+                        value: contentTypeMap[type],
+                        enabled: true
+                    });
+                }
+
+                return {
+                    ...req,
+                    headers: updatedHeaders,
+                    body: {
+                        type,
+                        content: ""
+                    }
+                };
+            });
+
+            set({
+                workspace: {
+                    ...workspace,
+                    requests: updatedRequests
+                }
+            });
+        },
+
 
         updateRequest: (requestId, updates) => {
             const {workspace} = get();
@@ -119,11 +239,71 @@ export const useWorkspaceStore = create(
             })
         },
 
+        deleteRequest: (requestId) => {
+            const {workspace, selectedRequestId} = get();
+            if (!workspace) return;
+
+            const updatedRequests = workspace.requests.filter(
+                (r) => r.id !== requestId
+            );
+
+            const updatedCollections = workspace.collections.map((collection) => ({
+                ...collection,
+                requestIds: collection.requestIds.filter(
+                    (id) => id !== requestId
+                ),
+            }));
+
+            set({
+                workspace: {
+                    ...workspace,
+                    requests: updatedRequests,
+                    collections: updatedCollections,
+                },
+                selectedRequestId:
+                    selectedRequestId === requestId
+                        ? null
+                        : selectedRequestId,
+            });
+        },
+
+        duplicateRequest: (requestId) => {
+            const {workspace} = get();
+            if (!workspace) return;
+
+            const original = workspace.requests.find(r => r.id === requestId);
+            if (!original) return;
+
+            const newId = crypto.randomUUID();
+
+            const duplicated = {
+                ...original,
+                id: newId,
+                name: original.name + " Copy",
+            };
+
+            const updatedCollections = workspace.collections.map(c =>
+                c.id === original.collectionId
+                    ? {...c, requestIds: [...c.requestIds, newId]}
+                    : c
+            );
+
+            set({
+                workspace: {
+                    ...workspace,
+                    requests: [...workspace.requests, duplicated],
+                    collections: updatedCollections,
+                },
+                selectedRequestId: newId,
+            });
+        },
+
+
         sendRequest: async () => {
-            const { selectedRequestId } = get();
+            const {selectedRequestId} = get();
             if (!selectedRequestId) return;
 
-            set({ isSending: true });
+            set({isSending: true});
 
             try {
                 const res = await window.api.http.send(selectedRequestId);
@@ -131,7 +311,7 @@ export const useWorkspaceStore = create(
                 if (res?.aborted) {
                     set({
                         isSending: false,
-                        response: { aborted: true }
+                        response: {aborted: true}
                     });
                     return;
                 }
@@ -142,14 +322,14 @@ export const useWorkspaceStore = create(
                 });
             } catch (err) {
                 set({
-                    response: { error: err.message },
+                    response: {error: err.message},
                     isSending: false
                 });
             }
         },
 
         addHeader: (requestId) => {
-            const { workspace } = get();
+            const {workspace} = get();
             if (!workspace) return;
 
             const newHeader = {
@@ -161,7 +341,7 @@ export const useWorkspaceStore = create(
 
             const updatedRequests = workspace.requests.map(req =>
                 req.id === requestId
-                    ? { ...req, headers: [...req.headers, newHeader] }
+                    ? {...req, headers: [...req.headers, newHeader]}
                     : req
             );
 
@@ -174,7 +354,7 @@ export const useWorkspaceStore = create(
         },
 
         updateHeader: (requestId, headerId, updates) => {
-            const { workspace } = get();
+            const {workspace} = get();
             if (!workspace) return;
 
             const updatedRequests = workspace.requests.map(req =>
@@ -183,7 +363,7 @@ export const useWorkspaceStore = create(
                         ...req,
                         headers: req.headers.map(h =>
                             h.id === headerId
-                                ? { ...h, ...updates }
+                                ? {...h, ...updates}
                                 : h
                         )
                     }
@@ -199,7 +379,7 @@ export const useWorkspaceStore = create(
         },
 
         removeHeader: (requestId, headerId) => {
-            const { workspace } = get();
+            const {workspace} = get();
             if (!workspace) return;
 
             const updatedRequests = workspace.requests.map(req =>
@@ -220,19 +400,19 @@ export const useWorkspaceStore = create(
         },
 
         cancelRequest: async () => {
-            const { selectedRequestId } = get();
+            const {selectedRequestId} = get();
             if (!selectedRequestId) return;
 
             await window.api.http.cancel(selectedRequestId);
 
             set({
                 isSending: false,
-                response: { aborted: true }
+                response: {aborted: true}
             });
         },
 
         createEnvironment: (name) => {
-            const { workspace } = get();
+            const {workspace} = get();
             if (!workspace) return;
 
             const newEnv = {
@@ -250,21 +430,21 @@ export const useWorkspaceStore = create(
         },
 
         updateEnvironment: (envId, updates) => {
-            const { workspace } = get();
+            const {workspace} = get();
             if (!workspace) return;
 
             set({
                 workspace: {
                     ...workspace,
                     environments: workspace.environments.map(env =>
-                        env.id === envId ? { ...env, ...updates } : env
+                        env.id === envId ? {...env, ...updates} : env
                     )
                 }
             });
         },
 
         deleteEnvironment: (envId) => {
-            const { workspace } = get();
+            const {workspace} = get();
             if (!workspace) return;
 
             set({
