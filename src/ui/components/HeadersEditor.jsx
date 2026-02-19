@@ -64,7 +64,6 @@ export function HeadersEditor({request}) {
                 </div>
             ))}
 
-
             <Button
                 variant="outline"
                 onClick={() => addHeader(request.id)}

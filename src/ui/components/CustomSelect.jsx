@@ -5,7 +5,7 @@ import {
     SelectItem, SelectLabel,
     SelectTrigger,
     SelectValue,
-} from "./ui/select"
+} from "./ui"
 
 export function CustomSelect({
                                  value,
@@ -17,11 +17,10 @@ export function CustomSelect({
                              }) {
     return (
         <Select
-            className="w-full"
             value={value}
             onValueChange={onChange}
         >
-            <SelectTrigger className={`w-full max-w-48 ${className ?? ""}`}>
+            <SelectTrigger className={`max-w-48 ${className ?? ""}`}>
                 <SelectValue placeholder={placeholder}/>
             </SelectTrigger>
 

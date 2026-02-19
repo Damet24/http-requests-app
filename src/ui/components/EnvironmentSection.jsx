@@ -28,13 +28,12 @@ export function EnvironmentSection() {
     }, [workspace.environments, workspace.activeEnvironmentId]);
 
     return (
-        <div className="p-4 border-b border-zinc-800 flex gap-2 items-center">
+        <div className="w-full p-4 border-b border-zinc-800 flex gap-2 items-center">
 
             <CustomSelect
                 value={workspace.activeEnvironmentId || ""}
                 options={options}
                 onChange={setActiveEnvironment}
-                className="flex-1 w-full"
             />
 
             <Dialog>

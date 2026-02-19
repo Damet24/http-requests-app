@@ -37,7 +37,7 @@ export function RequestArea() {
     if (!request) return null;
 
     return (
-        <div className="flex flex-col h-full min-h-0 overflow-hidden p-4 md:p-6 gap-4">
+        <div className="flex flex-col h-full min-h-0 overflow-hidden p-2 md:p-3 gap-4">
 
             {/* Header */}
             <div className="shrink-0">

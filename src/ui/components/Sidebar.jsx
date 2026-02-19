@@ -11,18 +11,18 @@ export function Sidebar() {
     const hasCollections = workspace.collections && workspace.collections.length > 0;
 
     return (
-        <ScrollArea className="hidden md:flex h-screen min-h-0 flex-col">
-            <div className="flex-1 min-h-0 flex flex-col">
+        <div className="h-full flex flex-col border-r border-zinc-800">
 
                 <EnvironmentSection/>
 
-                <div className={hasCollections ? "flex-1 min-h-0 overflow-auto p-2" : "p-2"}>
+                <ScrollArea className={hasCollections ? "flex-1 min-h-0 overflow-auto p-2" : "p-2"}>
+
                     <CollectionsList/>
-                </div>
+
+                </ScrollArea>
 
                 <SidebarFooter/>
 
             </div>
-        </ScrollArea>
     );
 }

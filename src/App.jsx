@@ -25,16 +25,18 @@ export function App() {
     return (
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
             <div className="h-screen">
-                <Group direction="horizontal">
-                    <Panel defaultSize={25} minSize={15}>
-                        <Sidebar/>
+                <Group direction="horizontal" className="h-full">
+                    <Panel defaultSize={25} minSize={15} className="h-full">
+                        <Sidebar />
                     </Panel>
-                    <Panel defaultSize={75}>
-                        <RequestArea/>
+
+                    <Panel defaultSize={75} className="h-full">
+                        <RequestArea />
                     </Panel>
                 </Group>
             </div>
         </ThemeProvider>
     );
+
 
 }
