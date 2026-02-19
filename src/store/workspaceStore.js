@@ -9,7 +9,7 @@ export const useWorkspaceStore = create(
         workspace: null,
         isLoaded: false,
         selectedRequestId: null,
-        response: null,
+        responses: {},
         isSending: false,
 
 
@@ -129,7 +129,6 @@ export const useWorkspaceStore = create(
             });
         },
 
-
         setActiveEnvironment: (envId) => {
             const {workspace} = get();
             if (!workspace) return;
@@ -220,7 +219,6 @@ export const useWorkspaceStore = create(
             });
         },
 
-
         updateRequest: (requestId, updates) => {
             const {workspace} = get();
             if (!workspace) return;
@@ -298,7 +296,6 @@ export const useWorkspaceStore = create(
             });
         },
 
-
         sendRequest: async () => {
             const {selectedRequestId} = get();
             if (!selectedRequestId) return;
@@ -309,22 +306,34 @@ export const useWorkspaceStore = create(
                 const res = await window.api.http.send(selectedRequestId);
 
                 if (res?.aborted) {
-                    set({
-                        isSending: false,
-                        response: {aborted: true}
-                    });
+                    set(state => ({
+                        responses: {
+                            ...state.responses,
+                            [selectedRequestId]: { aborted: true }
+                        },
+                        isSending: false
+                    }));
+
                     return;
                 }
 
-                set({
-                    response: res,
+                set(state => ({
+                    responses: {
+                        ...state.responses,
+                        [selectedRequestId]: res
+                    },
                     isSending: false
-                });
+                }));
+
             } catch (err) {
-                set({
-                    response: {error: err.message},
+                set(state => ({
+                    responses: {
+                        ...state.responses,
+                        [selectedRequestId]: { error: err.message }
+                    },
                     isSending: false
-                });
+                }));
+
             }
         },
 
@@ -405,10 +414,14 @@ export const useWorkspaceStore = create(
 
             await window.api.http.cancel(selectedRequestId);
 
-            set({
+            set(state => ({
                 isSending: false,
-                response: {aborted: true}
-            });
+                responses: {
+                    ...state.responses,
+                    [selectedRequestId]: { aborted: true }
+                }
+            }));
+
         },
 
         createEnvironment: (name) => {

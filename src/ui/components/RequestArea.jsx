@@ -17,7 +17,9 @@ export function RequestArea() {
     const workspace = useWorkspaceStore((s) => s.workspace);
     const selectedRequestId = useWorkspaceStore((s) => s.selectedRequestId);
     const updateRequest = useWorkspaceStore((s) => s.updateRequest);
-    const response = useWorkspaceStore((s) => s.response);
+    const response = useWorkspaceStore((s) =>
+        s.responses[s.selectedRequestId]
+    );
     const setRequestBodyType = useWorkspaceStore((s) => s.setRequestBodyType);
 
     if (!selectedRequestId) {
