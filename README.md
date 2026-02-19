@@ -1,5 +1,7 @@
 # Request App
 
+![Reqly Desktop](.github/screenshot.png)
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Electron](https://img.shields.io/badge/Electron-Desktop-47848F)
 ![React](https://img.shields.io/badge/React-19-61DAFB)
