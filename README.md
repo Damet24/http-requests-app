@@ -1,75 +1,87 @@
-# request-app
+# Request App
 
-Desktop application (Electron + Vite + React) to create and manage HTTP requests, collections, and environments.
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Electron](https://img.shields.io/badge/Electron-Desktop-47848F)
+![React](https://img.shields.io/badge/React-19-61DAFB)
+![Vite](https://img.shields.io/badge/Vite-5-646CFF)
+![Zustand](https://img.shields.io/badge/State-Zustand-000000)
+![CodeMirror](https://img.shields.io/badge/Editor-CodeMirror-orange)
+![Tailwind](https://img.shields.io/badge/Style-Tailwind-38BDF8)
 
-## Overview
+A modern desktop HTTP client built with **Electron + React + Vite** that allows you to create, organize, and execute HTTP requests with full environment support.
 
-- **Author:** Daniel Mercado  
-- **Version:** 1.0.0  
-- **License:** MIT  
+---
 
-## Features
+## 🚀 Features
 
-- Create/edit/execute HTTP requests  
-- Group requests into collections  
-- Environment management (environment-based variables)  
-- Code editor (CodeMirror) for request body and response  
-- Headers and response viewer  
+* Create, edit, and execute HTTP requests
+* Organize requests into collections
+* Environment-based variables
+* CodeMirror-powered request body and response editor
+* Automatic `Content-Type` handling
+* Resizable split panels (request/response view)
+* Local workspace persistence
+* Clean, modular architecture
 
-## Main Technologies
+---
 
-- Electron  
-- Vite  
-- React 19  
-- CodeMirror  
-- Tailwind CSS  
-- Zustand (state management)  
+## 🏗 Architecture
 
-## Requirements
+```
+Electron Main Process
+        │
+     Preload (IPC bridge)
+        │
+     React Renderer
+        │
+     Zustand Global Store
+        │
+ File-based Persistence Layer
+```
 
-- Node.js and `pnpm` installed on the system.
+---
 
-## Installation and Run (Development)
+## 🛠 Tech Stack
 
-Install dependencies:
+* Electron
+* React 19
+* Vite
+* Zustand
+* CodeMirror
+* Tailwind CSS
+* react-resizable-panels
+
+---
+
+## 📦 Installation
 
 ```bash
 pnpm install
-````
-
-Start the application in development mode:
-
-```bash
-pnpm run start
+pnpm start
 ```
 
-Available commands (defined in `package.json`):
+---
 
-* `start` — Runs the app in development mode (`electron-forge start`).
-* `package` — Packages the application (`electron-forge package`).
-* `make` — Generates installers (`electron-forge make`).
-* `publish` — Publishes packages (`electron-forge publish`).
-* `lint` — Placeholder for linting.
+## 🧪 Scripts
 
-## Project Structure (Summary)
+| Command        | Description                  |
+| -------------- | ---------------------------- |
+| `pnpm start`   | Run in development mode      |
+| `pnpm package` | Package the application      |
+| `pnpm make`    | Generate platform installers |
+| `pnpm publish` | Publish build artifacts      |
 
-* [src/main.js](src/main.js) — Main process (Electron main).
-* [src/preload.js](src/preload.js) — Preload script for contextBridge / IPC.
-* [src/renderer.jsx](src/renderer.jsx) — Renderer entry point (UI).
-* [src/application](src/application) — Domain logic and models.
-* [src/infrastructure/persistence/fileStorage.js](src/infrastructure/persistence/fileStorage.js) — File-based persistence.
-* [src/lib/utils.js](src/lib/utils.js) — Shared utilities.
-* [src/store/workspaceStore.js](src/store/workspaceStore.js) — Global state with `zustand`.
-* [src/ui/components](src/ui/components) — Main UI components (`RequestPanel`, `CollectionsList`, etc.).
+---
 
-For more implementation details, review the components in [src/ui/components](src/ui/components).
+## 📂 Project Structure
 
-## How to Contribute
-
-* Create a branch per feature: `git checkout -b feat/my-change`.
-* Open a pull request with a clear description and reproduction steps.
-
-## Notes and Recommendations
-
-* The project uses `pnpm` for speed and due to the `pnpm` configuration in `package.json`.
-* If you need to generate a production build, use `pnpm run package` and/or `pnpm run make`.
+```
+src/
+ ├── main.js
+ ├── preload.js
+ ├── renderer.jsx
+ ├── application/
+ ├── infrastructure/
+ ├── store/
+ └── ui/
+```
