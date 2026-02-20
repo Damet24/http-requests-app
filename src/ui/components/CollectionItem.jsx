@@ -61,7 +61,10 @@ export function CollectionItem({ collection }) {
                   className={`text-xs transition-transform duration-200 cursor-pointer  ${
                       collapsed ? "-rotate-90" : "rotate-0"
                   }`}
-                  onClick={() => !isEditing && setCollapsed(prev => !prev)}
+                  onClick={(e) => {
+                      e.stopPropagation()
+                      !isEditing && setCollapsed(prev => !prev)
+                  }}
               >
                 <ChevronDown size={14} />
               </span>
