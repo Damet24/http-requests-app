@@ -1,8 +1,7 @@
 import {useWorkspaceStore} from "../../store/workspaceStore";
 import {MethodSelect} from "./MethodSelect";
-import { Button } from "./ui/button";
 import {UrlEditor} from "./UrlEditor";
-import {Spinner} from "./ui";
+import {Spinner, Button} from "./ui";
 
 export function RequestConfigRow({request}) {
 

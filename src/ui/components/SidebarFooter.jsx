@@ -5,7 +5,7 @@ export function SidebarFooter() {
     const createCollection = useWorkspaceStore(s => s.createCollection);
 
     return (
-        <div className="p-3 border-t border-zinc-800">
+        <div className="p-3 border-t dark:border-zinc-800">
             <Button
                 variant="secondary"
                 className="w-full"

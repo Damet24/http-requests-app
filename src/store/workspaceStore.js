@@ -4,20 +4,63 @@ import debounce from "lodash.debounce";
 
 const AUTOSAVE_DELAY = 300;
 
+function resolveRequestAuth(workspace, request) {
+    if (!request.auth || request.auth.type !== "inherit") {
+        return request.auth || { type: "none", config: {} };
+    }
+
+    const collection = workspace.collections.find(
+        c => c.id === request.collectionId
+    );
+
+    return collection?.auth || { type: "none", config: {} };
+}
+
 export const useWorkspaceStore = create(
     subscribeWithSelector((set, get) => ({
         workspace: null,
         isLoaded: false,
         selectedRequestId: null,
+        selectedCollectionId: null,
         isSending: false,
 
+        setCollectionAuthConfig: (collectionId, config) => {
+            const { workspace } = get();
+            if (!workspace) return;
+
+            set({
+                workspace: {
+                    ...workspace,
+                    collections: workspace.collections.map(c =>
+                        c.id === collectionId
+                            ? {
+                                ...c,
+                                auth: {
+                                    ...c.auth,
+                                    config: {
+                                        ...c.auth?.config,
+                                        ...config
+                                    }
+                                }
+                            }
+                            : c
+                    )
+                }
+            });
+        },
 
         loadWorkspace: async () => {
             const data = await window.api.workspace.load();
 
+            const normalizedCollections = (data.collections || []).map(c => ({
+                ...c,
+                auth: c.auth || { type: "none", config: {} }
+            }));
+
             set({
                 workspace: {
                     ...data,
+                    collections: normalizedCollections,
                     responses: data.responses || {}
                 },
                 isLoaded: true
@@ -28,6 +71,10 @@ export const useWorkspaceStore = create(
             set({selectedRequestId: requestId});
         },
 
+        selectCollection: (collectionId) => {
+            set({selectedCollectionId: collectionId});
+        },
+
         createCollection: (name) => {
             const {workspace} = get();
             if (!workspace) return;
@@ -35,6 +82,10 @@ export const useWorkspaceStore = create(
             const collection = {
                 id: crypto.randomUUID(),
                 name,
+                auth: {
+                    type: "none",
+                    config: {}
+                },
                 requestIds: []
             };
 
@@ -88,6 +139,35 @@ export const useWorkspaceStore = create(
                 selectedRequestId: requestIdsToDelete.includes(selectedRequestId)
                     ? null
                     : selectedRequestId,
+            });
+        },
+
+        setCollectionAuthType: (collectionId, type) => {
+            const { workspace } = get();
+            if (!workspace) return;
+
+            const defaultConfigs = {
+                none: {},
+                basic: { username: "", password: "" },
+                bearer: { token: "" },
+                api: { key: "", value: "", in: "header" }
+            };
+
+            set({
+                workspace: {
+                    ...workspace,
+                    collections: workspace.collections.map(c =>
+                        c.id === collectionId
+                            ? {
+                                ...c,
+                                auth: {
+                                    type,
+                                    config: defaultConfigs[type] || {}
+                                }
+                            }
+                            : c
+                    )
+                }
             });
         },
 
@@ -153,8 +233,12 @@ export const useWorkspaceStore = create(
                 collectionId,
                 method: "GET",
                 url: "",
+                auth: {
+                    type: "none",
+                    config: {}
+                },
                 headers: [],
-                body: {type: "json", content: ""}
+                body: {type: "none", content: ""}
             };
 
             const updatedCollections = workspace.collections.map(c =>
@@ -170,6 +254,8 @@ export const useWorkspaceStore = create(
                     requests: [...workspace.requests, request]
                 }
             });
+
+            return request.id
         },
 
         setRequestBodyType: (requestId, type) => {
@@ -229,7 +315,8 @@ export const useWorkspaceStore = create(
                 none: {},
                 basic: { username: "", password: "" },
                 bearer: { token: "" },
-                api: { key: "", value: "", in: "header" } // header | query
+                api: { key: "", value: "", in: "header" },
+                inherit: {}
             };
 
             const updatedRequests = workspace.requests.map(req => {
@@ -513,6 +600,76 @@ export const useWorkspaceStore = create(
                     ...workspace,
                     environments: workspace.environments.map(env =>
                         env.id === envId ? {...env, ...updates} : env
+                    )
+                }
+            });
+        },
+
+        addEnvironmentVariable: (envId) => {
+            const { workspace } = get();
+            if (!workspace) return;
+
+            const newVariable = {
+                id: crypto.randomUUID(),
+                key: "",
+                value: "",
+                enabled: true
+            };
+
+            set({
+                workspace: {
+                    ...workspace,
+                    environments: workspace.environments.map(env =>
+                        env.id === envId
+                            ? {
+                                ...env,
+                                variables: [...env.variables, newVariable]
+                            }
+                            : env
+                    )
+                }
+            });
+        },
+
+        updateEnvironmentVariable: (envId, variableId, updates) => {
+            const { workspace } = get();
+            if (!workspace) return;
+
+            set({
+                workspace: {
+                    ...workspace,
+                    environments: workspace.environments.map(env =>
+                        env.id === envId
+                            ? {
+                                ...env,
+                                variables: env.variables.map(variable =>
+                                    variable.id === variableId
+                                        ? { ...variable, ...updates }
+                                        : variable
+                                )
+                            }
+                            : env
+                    )
+                }
+            });
+        },
+
+        deleteEnvironmentVariable: (envId, variableId) => {
+            const { workspace } = get();
+            if (!workspace) return;
+
+            set({
+                workspace: {
+                    ...workspace,
+                    environments: workspace.environments.map(env =>
+                        env.id === envId
+                            ? {
+                                ...env,
+                                variables: env.variables.filter(
+                                    variable => variable.id !== variableId
+                                )
+                            }
+                            : env
                     )
                 }
             });

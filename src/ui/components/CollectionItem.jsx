@@ -15,6 +15,8 @@ export function CollectionItem({ collection }) {
     const updateCollection = useWorkspaceStore(s => s.updateCollection);
     const deleteCollection = useWorkspaceStore(s => s.deleteCollection);
     const duplicateCollection = useWorkspaceStore(s => s.duplicateCollection);
+    const selectCollection = useWorkspaceStore(s => s.selectCollection);
+    const selectRequest = useWorkspaceStore(s => s.selectRequest);
 
     const [isEditing, setIsEditing] = useState(false);
     const [draftName, setDraftName] = useState(collection.name ?? "");
@@ -46,15 +48,20 @@ export function CollectionItem({ collection }) {
             <ContextMenuTrigger asChild>
                 <div>
                     {/* Header */}
-                    <div className="flex justify-between items-center group">
+                    <div className="flex justify-between items-center group cursor-pointer">
                         <div
-                            className="flex items-center gap-1 cursor-pointer flex-1"
-                            onClick={() => !isEditing && setCollapsed(prev => !prev)}
+                            className="flex items-center gap-1 flex-1"
+                            onClick={(e) => {
+                                e.stopPropagation()
+                                selectCollection(collection.id)
+                                selectRequest(null)
+                            }}
                         >
               <span
-                  className={`text-xs transition-transform duration-200 ${
+                  className={`text-xs transition-transform duration-200 cursor-pointer  ${
                       collapsed ? "-rotate-90" : "rotate-0"
                   }`}
+                  onClick={() => !isEditing && setCollapsed(prev => !prev)}
               >
                 <ChevronDown size={14} />
               </span>

@@ -30,21 +30,48 @@ function resolveVariables(input, variables) {
     });
 }
 
+function resolveAuthVariables(auth, variables) {
+    if (!auth?.config) return auth;
+
+    const resolvedConfig = {};
+
+    for (const key in auth.config) {
+        resolvedConfig[key] = resolveVariables(
+            auth.config[key],
+            variables
+        );
+    }
+
+    return {
+        ...auth,
+        config: resolvedConfig
+    };
+}
+
+function resolveRequestAuth(workspace, request) {
+    if (!request.auth || request.auth.type !== "inherit") {
+        return request.auth || { type: "none", config: {} };
+    }
+
+    const collection = workspace.collections.find(
+        c => c.id === request.collectionId
+    );
+
+    return collection?.auth || { type: "none", config: {} };
+}
+
 export function registerIpcHandlers() {
-    // Load workspace
     ipcMain.handle("workspace:load", () => {
         ensureWorkspace();
         return workspace;
     });
 
-    // Save workspace
     ipcMain.handle("workspace:save", (_, newWorkspace) => {
         workspace = newWorkspace;
         saveWorkspace(workspace);
         return workspace;
     });
 
-    // Create collection
     ipcMain.handle("collection:create", (_, name) => {
         ensureWorkspace();
 
@@ -55,7 +82,6 @@ export function registerIpcHandlers() {
         return collection;
     });
 
-    // Create environment
     ipcMain.handle("environment:create", (_, name) => {
         ensureWorkspace();
 
@@ -66,7 +92,6 @@ export function registerIpcHandlers() {
         return env;
     });
 
-    // Set active environment
     ipcMain.handle("environment:setActive", (_, envId) => {
         ensureWorkspace();
 
@@ -76,7 +101,6 @@ export function registerIpcHandlers() {
         return workspace;
     });
 
-    // Create request
     ipcMain.handle("request:create", (_, {collectionId, name}) => {
         ensureWorkspace();
 
@@ -108,26 +132,65 @@ export function registerIpcHandlers() {
             env => env.id === workspace.activeEnvironmentId
         );
 
-        console.log(activeEnv);
-        console.log(request);
-
         const variables = activeEnv ? activeEnv.variables : [];
 
-        const resolvedUrl = resolveVariables(request.url, variables);
+        let resolvedUrl = resolveVariables(request.url, variables);
 
-        console.log(resolvedUrl);
+        const resolvedHeaders = new Headers();
 
-        const resolvedHeaders = {};
         request.headers
             .filter(h => h.enabled)
             .forEach(h => {
-                resolvedHeaders[h.key] = resolveVariables(h.value, variables);
+                resolvedHeaders.set(
+                    h.key,
+                    resolveVariables(h.value, variables)
+                );
             });
 
-        const resolvedBody =
-            request.body?.type !== "none"
-                ? resolveVariables(request.body.content, variables)
-                : undefined;
+        const effectiveAuth = resolveRequestAuth(workspace, request);
+        const resolvedAuth = resolveAuthVariables(effectiveAuth, variables);
+
+        const hasManualAuth = resolvedHeaders.has("Authorization");
+
+        if (!hasManualAuth) {
+            if (resolvedAuth.type === "basic") {
+                const { username = "", password = "" } = resolvedAuth.config;
+
+                const token = Buffer
+                    .from(`${username}:${password}`)
+                    .toString("base64");
+
+                resolvedHeaders.set("Authorization", `Basic ${token}`);
+            }
+
+            if (resolvedAuth.type === "bearer") {
+                const { token = "" } = resolvedAuth.config;
+                resolvedHeaders.set("Authorization", `Bearer ${token}`);
+            }
+        }
+
+        if (resolvedAuth.type === "api") {
+            const { key = "", value = "", in: location } = resolvedAuth.config;
+
+            if (location === "header" && key) {
+                resolvedHeaders.set(key, value);
+            }
+
+            if (location === "query" && key) {
+                const url = new URL(resolvedUrl);
+                url.searchParams.set(key, value);
+                resolvedUrl = url.toString();
+            }
+        }
+
+        let resolvedBody;
+
+        if (request.body?.type !== "none" && request.method !== "GET") {
+            resolvedBody = resolveVariables(
+                request.body.content,
+                variables
+            );
+        }
 
         const controller = new AbortController();
         activeRequests.set(requestId, controller);
@@ -138,13 +201,12 @@ export function registerIpcHandlers() {
             console.log(resolvedUrl, {
                 method: request.method,
                 headers: resolvedHeaders,
-                body: request.method !== "GET" ? resolvedBody : undefined,
-                signal: controller.signal
-            })
+                body: resolvedBody,
+                signal: controller.signal})
             const response = await fetch(resolvedUrl, {
                 method: request.method,
                 headers: resolvedHeaders,
-                body: request.method !== "GET" ? resolvedBody : undefined,
+                body: resolvedBody,
                 signal: controller.signal
             });
 

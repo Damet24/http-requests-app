@@ -28,7 +28,7 @@ export function EnvironmentSection() {
     }, [workspace.environments, workspace.activeEnvironmentId]);
 
     return (
-        <div className="w-full p-4 border-b border-zinc-800 flex gap-2 justify-between">
+        <div className="w-full p-4 border-b dark:border-zinc-800 flex gap-2 justify-between">
 
             <CustomSelect
                 value={workspace.activeEnvironmentId || ""}

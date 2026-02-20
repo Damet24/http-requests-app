@@ -11,11 +11,11 @@ export function HeadersViewer({ headers }) {
     if (!headers) return null;
 
     return (
-        <div className="h-full overflow-auto p-3">
+        <div className="h-full overflow-auto">
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="w-1/3">Key</TableHead>
+                        <TableHead className="w-64">Key</TableHead>
                         <TableHead>Value</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -23,11 +23,11 @@ export function HeadersViewer({ headers }) {
                 <TableBody>
                     {Object.entries(headers).map(([key, value]) => (
                         <TableRow key={key}>
-                            <TableCell className="font-mono text-muted-foreground">
+                            <TableCell className="font-mono text-muted-foreground wrap-break-word">
                                 {key}
                             </TableCell>
 
-                            <TableCell className="break-all">
+                            <TableCell className="wrap-break-word whitespace-pre-wrap max-w-0">
                                 {value}
                             </TableCell>
                         </TableRow>

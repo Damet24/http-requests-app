@@ -11,7 +11,7 @@ export function Sidebar() {
     const hasCollections = workspace.collections && workspace.collections.length > 0;
 
     return (
-        <div className="h-full flex flex-col border-r border-zinc-800">
+        <div className="h-full flex flex-col border-r dark:border-zinc-800">
 
                 <EnvironmentSection/>
 
