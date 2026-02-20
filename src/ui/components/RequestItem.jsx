@@ -9,13 +9,7 @@ import {
     ContextMenuItem,
     ContextMenuSeparator,
 } from "./ui";
-
-const methodColors = {
-    GET: "text-green-400",
-    POST: "text-blue-400",
-    PUT: "text-yellow-400",
-    DELETE: "text-red-400"
-};
+import {MethodColors} from "../../domain/models/constants";
 
 export function RequestItem({request}) {
     const selectedRequestId = useWorkspaceStore(s => s.selectedRequestId);
@@ -61,7 +55,7 @@ export function RequestItem({request}) {
                             : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     }`}
                 >
-                    <span className={`text-xs ${methodColors[request.method]}`}>{request.method}</span>
+                    <span className={`text-xs ${MethodColors[request.method]}`}>{request.method}</span>
                     {isEditing ? (
                         <Input
                             ref={inputRef}

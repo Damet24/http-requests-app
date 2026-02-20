@@ -5,13 +5,10 @@ import {Panel, Group} from "react-resizable-panels";
 import {RequestEditorPanel} from "./RequestEditorPanel";
 import {ResponsePanel} from "./RequestPanel";
 import {AuthTab} from "./AuthTab";
+import {Plus} from "lucide-react";
+import {RequestItem} from "./RequestItem";
 
-const methodColors = {
-    GET: "text-green-400",
-    POST: "text-blue-400",
-    PUT: "text-yellow-400",
-    DELETE: "text-red-400"
-};
+
 
 
 function CollectionPanel({collection}) {
@@ -29,8 +26,6 @@ function CollectionPanel({collection}) {
 
     return (
         <div className="flex flex-col h-full min-h-0 overflow-hidden p-2 md:p-3 gap-4">
-
-            {/* Header */}
             <div className="shrink-0 flex justify-between items-center">
                 <H1>{collection.name}</H1>
             </div>
@@ -52,8 +47,6 @@ function CollectionPanel({collection}) {
 
                     <Panel defaultSize={40} minSize={30}>
                         <div className="h-full flex flex-col">
-
-                            {/* Header */}
                             <div className="flex items-center justify-between px-3 py-2 border-b border-border">
                                 <span className="text-sm font-semibold">Requests</span>
 
@@ -65,11 +58,10 @@ function CollectionPanel({collection}) {
                                         selectRequest(newRequestId)
                                     }}
                                 >
-                                    +
+                                    <Plus />
                                 </Button>
                             </div>
 
-                            {/* List */}
                             <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
                                 {requests.length === 0 ? (
                                     <P className="text-muted-foreground text-sm">
@@ -77,34 +69,7 @@ function CollectionPanel({collection}) {
                                     </P>
                                 ) : (
                                     requests.map(request => (
-                                        <div
-                                            key={request.id}
-                                            onClick={() => selectRequest(request.id)}
-                                            className="
-                            flex items-center gap-3
-                            px-2 py-1.5
-                            rounded-md
-                            cursor-pointer
-                            hover:bg-accent
-                            transition-colors
-                        "
-                                        >
-                        <span
-                            className={`
-                                text-[10px]
-                                font-bold
-                                uppercase
-                                tracking-wide
-                                ${methodColors[request.method] ?? "text-muted-foreground"}
-                            `}
-                        >
-                            {request.method}
-                        </span>
-
-                                            <span className="text-sm truncate">
-                            {request.name}
-                        </span>
-                                        </div>
+                                        <RequestItem request={request} />
                                     ))
                                 )}
                             </div>

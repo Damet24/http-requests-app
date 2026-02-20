@@ -15,13 +15,21 @@ export function CustomSelect({
                                  placeholder = "Select item",
                                  label = "Select",
                              }) {
+
+    const selectedOption = options.find(o => o.value === value);
+
     return (
         <Select
             value={value}
             onValueChange={onChange}
         >
-            <SelectTrigger className={`${className ?? ""}`}>
-                <SelectValue placeholder={placeholder}/>
+            <SelectTrigger
+                className={`
+                    ${className ?? ""}
+                    ${selectedOption?.colorText ?? ""}
+                `}
+            >
+                <SelectValue placeholder={placeholder} />
             </SelectTrigger>
 
             <SelectContent>
@@ -32,14 +40,13 @@ export function CustomSelect({
                         <SelectItem
                             key={option.value}
                             value={option.value}
+                            className={option.colorText ?? ""}
                         >
                             {option.label}
                         </SelectItem>
                     ))}
-
                 </SelectGroup>
             </SelectContent>
         </Select>
     );
-
 }

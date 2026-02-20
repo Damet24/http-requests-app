@@ -1,6 +1,5 @@
 import {Field, FieldLabel, InputGroup, InputGroupAddon, InputGroupInput} from "./ui";
 import {EyeOffIcon, Eye} from "lucide-react";
-import {useWorkspaceStore} from "../../store/workspaceStore";
 import {useState} from "react";
 
 export function BasicAuthForm({ auth, onChangeConfig }) {
@@ -33,6 +32,7 @@ export function BasicAuthForm({ auth, onChangeConfig }) {
                     />
                     <InputGroupAddon
                         className="cursor-pointer"
+                        align="inline-end"
                         onClick={() => setShowPassword(p => !p)}
                     >
                         {showPassword ? <Eye/> : <EyeOffIcon/>}
